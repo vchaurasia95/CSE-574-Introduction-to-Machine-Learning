@@ -157,6 +157,10 @@ def learnRidgeRegression(X, y, lambd):
     # Output:                                                                  
     # w = d x 1                                                                
 
+    I = np.identity(X.shape[1])
+
+    w = np.dot(np.dot(np.linalg.inv(np.dot(lambd, I) + np.dot(np.transpose(X), X)), np.transpose(X)), y)
+
     # IMPLEMENT THIS METHOD                                                   
     return w
 
@@ -198,7 +202,7 @@ def mapNonLinear(x, p):
 
 
 # Main script
-
+np.set_printoptions(suppress=True)
 # Problem 1
 # load the sample data                                                                 
 if sys.version_info.major == 2:
@@ -259,17 +263,31 @@ mle_i = testOLERegression(w_i, Xtest_i, ytest)
 print('MSE without intercept ' + str(mle))
 print('MSE with intercept ' + str(mle_i))
 
+
+
+
 # Problem 3
 k = 101
 lambdas = np.linspace(0, 1, num=k)
 i = 0
 mses3_train = np.zeros((k,1))
 mses3 = np.zeros((k,1))
+optimal = sys.maxsize
 for lambd in lambdas:
     w_l = learnRidgeRegression(X_i,y,lambd)
+    w_ole = learnOLERegression(X_i,y)
     mses3_train[i] = testOLERegression(w_l,X_i,y)
     mses3[i] = testOLERegression(w_l,Xtest_i,ytest)
+    if (mses3[i] < optimal):
+        w_ole_op = w_ole
+        optimal = mses3[i]
+        l = lambd
+        w_ridge = w_l
     i = i + 1
+print(w_ridge)
+print(w_ole_op)
+print('Optimal lambda '+str(l))
+print('MSE Ridge with intercept '+str(optimal))
 fig = plt.figure(figsize=[12,6])
 plt.subplot(1, 2, 1)
 plt.plot(lambdas,mses3_train)
@@ -279,6 +297,11 @@ plt.plot(lambdas,mses3)
 plt.title('MSE for Test Data')
 
 plt.show()
+
+
+
+
+
 # Problem 4
 k = 101
 lambdas = np.linspace(0, 1, num=k)
