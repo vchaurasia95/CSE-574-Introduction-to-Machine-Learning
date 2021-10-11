@@ -191,7 +191,9 @@ def mapNonLinear(x, p):
     # Outputs:                                                                 
     # Xp - (N x (p+1)) 
 
-    # IMPLEMENT THIS METHOD
+    Xp = np.ones((x.shape[0],p+1)) #N = rows in x
+    for i in range(1,p+1):
+        Xp[:,i] = math.pow(x,i)
     return Xp
 
 
