@@ -184,8 +184,24 @@ def regressionObjVal(w, X, y, lambd):
     # to w (vector) for the given data X and y and the regularization parameter
     # lambda                                                                  
 
-    # IMPLEMENT THIS METHOD                                             
-    return error, error_grad
+    # IMPLEMENT THIS METHOD
+    new_w = w.reshape(65, 1)
+    # error = 0.5*((y - w*X).T * (y - W)) + 0.5*lambd(w.T*w)
+    e_part1 = np.subtract(y, np.dot(X,new_w))
+    e_part2 = np.multiply(0.5,np.multiply(lambd,np.dot(np.transpose(new_w),new_w)))
+
+    error = np.add(
+        np.multiply(0.5, np.dot(
+            np.transpose(e_part1),e_part1)),
+        e_part2)
+    # error_grad = (X.T*X)W - X.T*y + lambd*w
+    eg_part1 = np.dot(np.dot(np.transpose(X),X), new_w)
+    eg_part2 = np.dot(np.transpose(X),y)
+    eg_part3 = np.multiply(lambd, new_w)
+
+    error_grad = np.add(np.subtract(eg_part1,eg_part2),eg_part3)
+
+    return error.flatten(), error_grad.flatten()
 
 
 def mapNonLinear(x, p):
@@ -284,8 +300,6 @@ for lambd in lambdas:
         l = lambd
         w_ridge = w_l
     i = i + 1
-print(w_ridge)
-print(w_ole_op)
 print('Optimal lambda '+str(l))
 print('MSE Ridge with intercept '+str(optimal))
 fig = plt.figure(figsize=[12,6])
