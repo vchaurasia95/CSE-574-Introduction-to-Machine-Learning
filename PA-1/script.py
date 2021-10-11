@@ -213,7 +213,7 @@ def mapNonLinear(x, p):
 
     Xp = np.ones((x.shape[0],p+1)) #N = rows in x
     for i in range(1,p+1):
-        Xp[:,i] = math.pow(x,i)
+        Xp[:,i] = x ** i
     return Xp
 
 
