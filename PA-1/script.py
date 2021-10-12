@@ -134,6 +134,7 @@ def qdaTest(means, covmats, Xtest, ytest):
     acc = correct
     return acc, ypred
 
+
 def learnOLERegression(X, y):
     # Inputs:                                                         
     # X = N x d 
@@ -286,20 +287,20 @@ lambdas = np.linspace(0, 1, num=k)
 i = 0
 mses3_train = np.zeros((k,1))
 mses3 = np.zeros((k,1))
-optimal = sys.maxsize
+# optimal = sys.maxsize
 for lambd in lambdas:
     w_l = learnRidgeRegression(X_i,y,lambd)
-    w_ole = learnOLERegression(X_i,y)
+    # w_ole = learnOLERegression(X_i,y)
     mses3_train[i] = testOLERegression(w_l,X_i,y)
     mses3[i] = testOLERegression(w_l,Xtest_i,ytest)
-    if (mses3[i] < optimal):
-        w_ole_op = w_ole
-        optimal = mses3[i]
-        l = lambd
-        w_ridge = w_l
+    # if (mses3[i] < optimal):
+    #     w_ole_op = w_ole
+    #     optimal = mses3[i]
+    #     l = lambd
+    #     w_ridge = w_l
     i = i + 1
-print('Optimal lambda '+str(l))
-print('MSE Ridge with intercept '+str(optimal))
+# print('Optimal lambda '+str(l))
+# print('MSE Ridge with intercept '+str(optimal))
 fig = plt.figure(figsize=[12,6])
 plt.subplot(1, 2, 1)
 plt.plot(lambdas,mses3_train)
@@ -318,6 +319,7 @@ plt.show()
 k = 101
 lambdas = np.linspace(0, 1, num=k)
 i = 0
+# optimal = sys.maxsize
 mses4_train = np.zeros((k,1))
 mses4 = np.zeros((k,1))
 opts = {'maxiter' : 20}    # Preferred value.
@@ -329,7 +331,11 @@ for lambd in lambdas:
     w_l = np.reshape(w_l,[len(w_l),1])
     mses4_train[i] = testOLERegression(w_l,X_i,y)
     mses4[i] = testOLERegression(w_l,Xtest_i,ytest)
+    # if (mses4[i] < optimal):
+    #     l_gradience = lambd
+    #     optimal = mses4[i]
     i = i + 1
+# print("When the minimum MSE value is ",str(optimal)," the optimal value is ",str(l_gradience))
 fig = plt.figure(figsize=[12,6])
 plt.subplot(1, 2, 1)
 plt.plot(lambdas,mses4_train)
@@ -347,7 +353,7 @@ plt.show()
 
 # Problem 5
 pmax = 7
-lambda_opt = 0 # REPLACE THIS WITH lambda_opt estimated from Problem 3
+lambda_opt = 0.06 # REPLACE THIS WITH lambda_opt estimated from Problem 3
 mses5_train = np.zeros((pmax,2))
 mses5 = np.zeros((pmax,2))
 for p in range(pmax):
@@ -359,7 +365,8 @@ for p in range(pmax):
     w_d2 = learnRidgeRegression(Xd,y,lambda_opt)
     mses5_train[p,1] = testOLERegression(w_d2,Xd,y)
     mses5[p,1] = testOLERegression(w_d2,Xdtest,ytest)
-
+# print("mse test",mses5)
+# print("mse training",mses5_train)
 fig = plt.figure(figsize=[12,6])
 plt.subplot(1, 2, 1)
 plt.plot(range(pmax),mses5_train)
