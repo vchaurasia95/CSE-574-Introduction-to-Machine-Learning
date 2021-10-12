@@ -106,7 +106,7 @@ def qdaTest(means, covmats, Xtest, ytest):
     # ypred - N x 1 column vector indicating the predicted labels
 
     # IMPLEMENT THIS METHOD
-    ypred = np.empty([Xtest.shape[0], 1])
+    ypred = np.zeros([Xtest.shape[0], 1])
     d = Xtest.shape[1]
     for sample in range(Xtest.shape[0]):
         predict = 0
@@ -133,8 +133,6 @@ def qdaTest(means, covmats, Xtest, ytest):
             correct = correct + 1
     acc = correct
     return acc, ypred
-    return acc, ypred
-
 
 def learnOLERegression(X, y):
     # Inputs:                                                         
