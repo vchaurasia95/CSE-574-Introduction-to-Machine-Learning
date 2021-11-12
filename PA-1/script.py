@@ -185,7 +185,7 @@ def regressionObjVal(w, X, y, lambd):
 
     # IMPLEMENT THIS METHOD
     new_w = w.reshape(65, 1)
-    # error = 0.5*((y - w*X).T * (y - W)) + 0.5*lambd(w.T*w)
+    # error = 0.5*((y - w*X).T * (y - w*X)) + 0.5*lambd(w.T*w)
     e_part1 = np.subtract(y, np.dot(X,new_w))
     e_part2 = np.multiply(0.5,np.multiply(lambd,np.dot(np.transpose(new_w),new_w)))
 
@@ -331,9 +331,9 @@ for lambd in lambdas:
     w_l = np.reshape(w_l,[len(w_l),1])
     mses4_train[i] = testOLERegression(w_l,X_i,y)
     mses4[i] = testOLERegression(w_l,Xtest_i,ytest)
-    # if (mses4[i] < optimal):
+    # if (mses4_train[i] < optimal):
     #     l_gradience = lambd
-    #     optimal = mses4[i]
+    #     optimal = mses4_train[i]
     i = i + 1
 # print("When the minimum MSE value is ",str(optimal)," the optimal value is ",str(l_gradience))
 fig = plt.figure(figsize=[12,6])
