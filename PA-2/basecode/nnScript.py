@@ -1,8 +1,12 @@
+import pickle
+
 import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
 from math import fabs, sqrt
 import matplotlib.pyplot as plt
+import pandas as pnd
+import time
 
 
 def initializeWeights(n_in, n_out):
@@ -26,7 +30,7 @@ def sigmoid(z):
     """# Notice that z can be a scalar, a vector or a matrix
     # return the sigmoid of input z"""
 
-    return (1.0 / (1.0 + np.exp(z)))
+    return (1.0 / (1.0 + np.exp(-z)))
 
 
 def preprocess():
@@ -75,14 +79,14 @@ def preprocess():
          test[5], test[6], test[7], test[8], test[9]),
         axis=0)
     np.random.shuffle(train_all)
-    train_final = train_all[0:50000, ]
+    train_final = train_all[0:50000,:]
     train_data = train_final[:, 0:784]
-    train_label = train_final[:, 784:]
-    validation_final = train_all[50000:60000, ]
+    train_label = train_final[:, 784]
+    validation_final = train_all[50000:60000,:]
     validation_data = validation_final[:, 0:784]
-    validation_label = validation_final[:, 784:]
+    validation_label = validation_final[:, 784]
     test_data = test_all[:, 0:784]
-    test_label = test_all[:, 784:]
+    test_label = test_all[:, 784]
     test_data = test_data / 255.0
     validation_data = validation_data / 255.0
     train_data = train_data / 255.0
@@ -102,11 +106,11 @@ def preprocess():
     print(" ")
     print(f"Total Selected Features-->{count}")
 
-    all = all[:, ~redundant_vals]
+    final_all = all[:, ~redundant_vals]
     train_row = train_data.shape[0]
 
-    train_data = train_data[0:train_row, :]
-    validation_data = validation_data[train_row:, :]
+    train_data = final_all[0:train_row, :]
+    validation_data = final_all[train_row:, :]
     test_data = test_data[:, ~redundant_vals]
     print('preprocess done')
     return train_data, train_label, validation_data, validation_label, test_data, test_label
@@ -155,7 +159,7 @@ def nnObjFunction(params, *args):
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
-    train_rows = train_data.shape[0]
+    train_rows = training_data.shape[0]
 
     # Your code here
     # Input to Hidden Layer
@@ -250,17 +254,27 @@ def nnPredict(w1, w2, data):
 """**************Neural Network Script Starts here********************************"""
 selected_indicies = []
 train_data, train_label, validation_data, validation_label, test_data, test_label = preprocess()
-
+exec_time = []
+train_acc =[]
+test_acc =[]
+validation_acc=[]
 #  Train Neural Network
 
 # set the number of nodes in input unit (not including bias unit)
 n_input = train_data.shape[1]
 
 # set the number of nodes in hidden unit (not including bias unit)
-n_hidden = 50
+n_hidden = 4
 
 # set the number of nodes in output unit
 n_class = 10
+
+lambda_vals = np.arange(0,70,10)
+hidden_vals = np.arange(4,28,4)
+
+# for lambda_val in lambda_vals:
+#     for n_hidden_val in hidden_vals:
+#         pri
 
 # initialize the weights into some random matrices
 initial_w1 = initializeWeights(n_input, n_hidden)
@@ -300,7 +314,6 @@ print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_
 predicted_label = nnPredict(w1, w2, validation_data)
 
 # find the accuracy on Validation Dataset
-
 print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == validation_label).astype(float))) + '%')
 
 predicted_label = nnPredict(w1, w2, test_data)
