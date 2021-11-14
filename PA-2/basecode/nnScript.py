@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.optimize import minimize
 from scipy.io import loadmat
-from math import sqrt
+from math import fabs, sqrt
+import matplotlib.pyplot as plt
 
 
 def initializeWeights(n_in, n_out):
@@ -12,7 +13,7 @@ def initializeWeights(n_in, n_out):
     # Input:
     # n_in: number of nodes of the input layer
     # n_out: number of nodes of the output layer
-       
+
     # Output: 
     # W: matrix of random initial weights with size (n_out x (n_in + 1))"""
 
@@ -25,7 +26,7 @@ def sigmoid(z):
     """# Notice that z can be a scalar, a vector or a matrix
     # return the sigmoid of input z"""
 
-    return  # your code here
+    return (1.0 / (1.0 + np.exp(z)))
 
 
 def preprocess():
@@ -52,15 +53,62 @@ def preprocess():
 
     mat = loadmat('mnist_all.mat')  # loads the MAT object as a Dictionary
 
-    # Split the training sets into two sets of 50000 randomly sampled training examples and 10000 validation examples. 
+    # Split the training sets into two sets of 50000 randomly sampled training examples and 10000 validation examples.
     # Your code here.
-    
-
+    test = []
+    train = []
+    for i in range(10):
+        id_train = f'train{i}'
+        id_test = f'test{i}'
+        mat_test = mat[id_test]
+        mat_train = mat[id_train]
+        label_test = np.full((mat_test.shape[0], 1), i)
+        label_train = np.full((mat_train.shape[0], 1), i)
+        labelled_train = np.concatenate((mat_train, label_train), axis=1)
+        labelled_test = np.concatenate((mat_test, label_test), axis=1)
+        test.append(labelled_test)
+        train.append(labelled_train)
+    train_all = np.concatenate((train[0], train[1], train[2], train[3],
+                                train[4], train[5], train[6], train[7], train[8], train[9]), axis=0)
+    test_all = np.concatenate(
+        (test[0], test[1], test[2], test[3], test[4],
+         test[5], test[6], test[7], test[8], test[9]),
+        axis=0)
+    np.random.shuffle(train_all)
+    train_final = train_all[0:50000, ]
+    train_data = train_final[:, 0:784]
+    train_label = train_final[:, 784:]
+    validation_final = train_all[50000:60000, ]
+    validation_data = validation_final[:, 0:784]
+    validation_label = validation_final[:, 784:]
+    test_data = test_all[:, 0:784]
+    test_label = test_all[:, 784:]
+    test_data = test_data / 255.0
+    validation_data = validation_data / 255.0
+    train_data = train_data / 255.0
     # Feature selection
     # Your code here.
+    all = np.concatenate((train_data, validation_data), axis=0)
+    ref = all[0, :]
+    redundant_vals = np.all(all == ref, axis=0)
 
+    count = 0
+    global selected_indicies
+    for i in range(len(redundant_vals)):
+        if redundant_vals[i] == False:
+            count += 1
+            selected_indicies.append(i)
+            print(i, end=" ")
+    print(" ")
+    print(f"Total Selected Features-->{count}")
+
+    all = all[:, ~redundant_vals]
+    train_row = train_data.shape[0]
+
+    train_data = train_data[0:train_row, :]
+    validation_data = validation_data[train_row:, :]
+    test_data = test_data[:, ~redundant_vals]
     print('preprocess done')
-
     return train_data, train_label, validation_data, validation_label, test_data, test_label
 
 
@@ -85,7 +133,7 @@ def nnObjFunction(params, *args):
     %     in the vector represents the truth label of its corresponding image.
     % lambda: regularization hyper-parameter. This value is used for fixing the
     %     overfitting problem.
-       
+
     % Output: 
     % obj_val: a scalar value representing value of error function
     % obj_grad: a SINGLE vector of gradient value of error function
@@ -107,20 +155,62 @@ def nnObjFunction(params, *args):
     w1 = params[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
     w2 = params[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
     obj_val = 0
+    train_rows = train_data.shape[0]
 
     # Your code here
-    #
-    #
-    #
-    #
-    #
+    # Input to Hidden Layer
+    biases_1 = np.full((train_rows, 1), 1)
+    training_data_with_biases = np.concatenate(
+        (biases_1, training_data), axis=1)
+    bj = np.dot(training_data_with_biases, np.transpose(w1))
+    sigma_bj = sigmoid(bj)
 
+    # Hidden to Output
+    sigma_bj_rows = sigma_bj.shape[0]
+    biases_2 = np.full((sigma_bj_rows, 1), 1)
+    sigma_bj_with_biase = np.concatenate((biases_2, sigma_bj), axis=1)
+    bz = np.dot(sigma_bj_with_biase, np.transpose(w2))
+    sigma_bz = sigmoid(bz)
 
+    # Error Calculation thru Error Function
+    ground_truth = np.full((train_rows, n_class), 0)
+    for i in range(train_rows):
+        label = training_label[i]
+        ground_truth[i][label] = 1
+
+    ground_truth_prime = (1.0 - ground_truth)
+    sigma_bz_prime = (1.0 - sigma_bz)
+    lg_sigma_bz = np.log(sigma_bz)
+    lg_sigma_bz_prime = np.log(sigma_bz_prime)
+
+    err = np.sum(np.multiply(ground_truth, lg_sigma_bz) +
+                 np.multiply(ground_truth_prime, lg_sigma_bz_prime))
+    err = (err / ((-1)*train_rows))
+
+    # Gradient Calculation for BP
+    delta = sigma_bz - ground_truth
+    grad_w2 = np.dot(delta.T, sigma_bj_with_biase)
+
+    t1 = np.dot(delta,w2)
+    t1 = t1 * (sigma_bj_with_biase*(1.0-sigma_bj_with_biase))
+
+    grad_w1 = (np.dot(np.transpose(t1), training_data_with_biases))[1:, :]
+
+    # Calculate Regularization
+
+    reg_para = lambdaval * (np.sum(np.square(w1))+np.sum(np.square(w2)))
+    reg_para = reg_para / (2*train_rows)
+    obj_val= err + reg_para
+
+    grad_w1_reg = ((lambdaval*w1)+grad_w1)/train_rows
+    grad_w2_reg = ((lambdaval*w2)+grad_w2)/train_rows
+
+    obj_grad = np.concatenate((grad_w1_reg.flatten(),grad_w2_reg.flatten()),0)
 
     # Make sure you reshape the gradient matrices to a 1D array. for instance if your gradient matrices are grad_w1 and grad_w2
     # you would use code similar to the one below to create a flat array
     # obj_grad = np.concatenate((grad_w1.flatten(), grad_w2.flatten()),0)
-    obj_grad = np.array([])
+    # obj_grad = np.array([])
 
     return (obj_val, obj_grad)
 
@@ -138,18 +228,27 @@ def nnPredict(w1, w2, data):
     %     layer to unit i in output layer.
     % data: matrix of data. Each row of this matrix represents the feature 
     %       vector of a particular image
-       
+
     % Output: 
     % label: a column vector of predicted labels"""
 
     labels = np.array([])
     # Your code here
+    train_rows = data.shape[0]
+    biase1 = np.full((train_rows,1), 1)
 
+    data_wit_biases = np.concatenate((biase1,data), axis=1)
+    bj = sigmoid(np.dot(data_wit_biases, w1.T))
+
+    biase2 = np.full((bj.shape[0],1),1)
+    data2 = np.concatenate((biase2,bj),axis=1)
+    cj = sigmoid(np.dot(data2,w2.T))
+    labels = np.argmax(cj, axis=1)
     return labels
 
 
 """**************Neural Network Script Starts here********************************"""
-
+selected_indicies = []
 train_data, train_label, validation_data, validation_label, test_data, test_label = preprocess()
 
 #  Train Neural Network
