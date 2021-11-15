@@ -333,7 +333,7 @@ for lambda_val in lambada_vals:
         print(' || n_hidden=', n_hidden, end=" ")
         print(' || λ=', lambda_val)
 
-results = plt.DataFrame(np.column_stack([lambdas, hidden, train_acc, validation_acc, test_acc, exec_time]),
+results = pnd.DataFrame(np.column_stack([lambdas, hidden, train_acc, validation_acc, test_acc, exec_time]),
                        columns=['λ', 'm', 'Train_Accuracy', 'Validation_Accuracy', 'Test_Accuracy', 'Training_Time'])
 results = results.sort_values(by=['Test_Accuracy'], ascending=False)
 
