@@ -267,8 +267,8 @@ n_input = train_data.shape[1]
 # set the number of nodes in output unit
 n_class = 10
 
-lambada_vals = np.arange(0,70,10)
-n_hidden_vals = np.arange(4,56,4)
+lambada_vals = np.arange(0, 70, 10)
+n_hidden_vals = np.arange(4, 24, 4)
 
 
 for lambda_val in lambada_vals:
@@ -324,7 +324,7 @@ for lambda_val in lambada_vals:
 
         end = time.time()
 
-        exec_time.append(start-end)
+        exec_time.append(end - start)
         lambdas.append(lambda_val)
         hidden.append(n_hidden)
         test_acc.append(test_accuracy)
@@ -333,3 +333,186 @@ for lambda_val in lambada_vals:
         print(' || n_hidden=', n_hidden, end=" ")
         print(' || λ=', lambda_val)
 
+results = plt.DataFrame(np.column_stack([lambdas, hidden, train_acc, validation_acc, test_acc, exec_time]),
+                       columns=['λ', 'm', 'Train_Accuracy', 'Validation_Accuracy', 'Test_Accuracy', 'Training_Time'])
+results = results.sort_values(by=['Test_Accuracy'], ascending=False)
+
+
+results.head(10)
+
+optimal_lambda = results.iloc[0,0]
+optimal_m = results.iloc[0,1]
+
+print("Optimal Lambda :", optimal_lambda)
+print("Optimal hidden units :", optimal_m)
+
+# In[13]:
+
+
+rows_with_optimal_lambda = results[results.λ == optimal_lambda]
+rows_with_optimal_m = results[results.m == optimal_m]
+rows_with_optimal_m = rows_with_optimal_m.sort_values(by=['λ'])
+rows_with_optimal_lambda = rows_with_optimal_lambda.sort_values(by=['m'])
+
+# Figure & Title
+plt.figure(figsize=(16, 12))
+plt.title('Accuracy vs Number of Hidden Units (m)', pad=10, fontsize=20, fontweight='bold')
+
+# Axis Labeling
+plt.xlabel('Number of Hidden Input (m)', labelpad=20, weight='bold', size=15)
+plt.ylabel('Accuracy', labelpad=20, weight='bold', size=15)
+
+# Axis ticks
+plt.xticks(np.arange(4, 24, step=4), fontsize=15)
+plt.yticks(np.arange(70, 95, step=2), fontsize=15)
+
+plt.plot(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Train_Accuracy, color='g')
+plt.plot(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Validation_Accuracy, color='b')
+plt.plot(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Test_Accuracy, color='r')
+
+ss = 'λ = ' + str(optimal_lambda) + ''
+plt.text(16, 86, s=ss, fontsize=25)
+plt.legend(('Training Accuracy', 'Validation Accuracy', 'Testing Accuracy'), fontsize=15)
+plt.show()
+
+# In[19]:
+
+
+# Figure & Title
+plt.figure(figsize=(16, 12))
+plt.title('Accuracy vs Number of Hidden Units (m)', pad=10, fontsize=20, fontweight='bold')
+
+# Axis Labeling
+plt.xlabel('Number of Hidden Input (m)', labelpad=20, weight='bold', size=15)
+plt.ylabel('Accuracy', labelpad=20, weight='bold', size=15)
+
+# Axis ticks
+plt.xticks(np.arange(4, 24, step=4), fontsize=15)
+plt.yticks(np.arange(70, 95, step=2), fontsize=15)
+
+plt.scatter(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Train_Accuracy, color='g')
+plt.scatter(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Validation_Accuracy, color='b')
+plt.scatter(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Test_Accuracy, color='r')
+
+ss = 'λ = ' + str(optimal_lambda) + ''
+plt.text(16, 86, s=ss, fontsize=25)
+plt.legend(('Training Accuracy', 'Validation Accuracy', 'Testing Accuracy'), fontsize=15)
+plt.show()
+
+# ## <font color=blue> Training Time vs Number of Hidden Units
+
+# In[28]:
+
+
+# Figure & Title
+plt.figure(figsize=(16, 12))
+plt.title('Training_Time vs Number of Hidden Units(m)', pad=10, fontsize=20, fontweight='bold')
+
+# Axis Labeling
+plt.xlabel('Number of Hidden Input', labelpad=20, weight='bold', size=15)
+plt.ylabel('Training_Time', labelpad=20, weight='bold', size=15)
+
+# Axis ticks
+plt.xticks(np.arange(4, 24, step=4), fontsize=15)
+plt.yticks(fontsize=15)
+
+ss = 'λ = ' + str(optimal_lambda) + ''
+plt.text(8, 24.25, s=ss, fontsize=25)
+plt.plot(rows_with_optimal_lambda.m, rows_with_optimal_lambda.Training_Time, color='c')
+
+plt.show()
+
+# ## <font color=blue> Accuracy vs Lamda
+
+# In[26]:
+
+
+# Figure & Title
+plt.figure(figsize=(16, 12))
+plt.title('Accuracy vs λ', pad=10, fontsize=20, fontweight='bold')
+
+# Axis Labeling
+plt.xlabel('λ', labelpad=20, weight='bold', size=15)
+plt.ylabel('Accuracy', labelpad=20, weight='bold', size=15)
+
+# Axis ticks
+plt.xticks(np.arange(0, 65, step=5), fontsize=15)
+plt.yticks(fontsize=15)
+
+plt.plot(rows_with_optimal_m.λ, rows_with_optimal_m.Train_Accuracy, color='g')
+plt.plot(rows_with_optimal_m.λ, rows_with_optimal_m.Validation_Accuracy, color='b')
+plt.plot(rows_with_optimal_m.λ, rows_with_optimal_m.Test_Accuracy, color='r')
+
+ss = 'm = ' + str(optimal_m) + ''
+plt.text(10, 93.5, s=ss, fontsize=25)
+plt.legend(('Training Accuracy', 'Validation Accuracy', 'Testing Accuracy'), fontsize=15)
+plt.show()
+
+# In[22]:
+
+
+len(featureIndices)
+
+# # <font color = green> Pickle object Creation with Optimal parameters
+
+# In[29]:
+
+
+# set the number of nodes in input unit (not including bias unit)
+n_input = train_data.shape[1]
+
+# set the number of nodes in hidden unit (not including bias unit)
+n_hidden = 20
+
+# set the number of nodes in output unit
+n_class = 10
+
+# initialize the weights into some random matrices
+initial_w1 = initializeWeights(n_input, n_hidden)
+initial_w2 = initializeWeights(n_hidden, n_class)
+
+# unroll 2 weight matrices into single column vector
+initialWeights = np.concatenate((initial_w1.flatten(), initial_w2.flatten()), 0)
+
+# set the regularization hyper-parameter
+lambdaval = 30
+
+args = (n_input, n_hidden, n_class, train_data, train_label, lambdaval)
+
+# Train Neural Network using fmin_cg or minimize from scipy,optimize module. Check documentation for a working example
+
+opts = {'maxiter': 50}  # Preferred value.
+
+nn_params = minimize(nnObjFunction, initialWeights, jac=True, args=args, method='CG', options=opts)
+
+# In Case you want to use fmin_cg, you may have to split the nnObjectFunction to two functions nnObjFunctionVal
+# and nnObjGradient. Check documentation for this function before you proceed.
+# nn_params, cost = fmin_cg(nnObjFunctionVal, initialWeights, nnObjGradient,args = args, maxiter = 50)
+
+
+# Reshape nnParams from 1D vector into w1 and w2 matrices
+w1 = nn_params.x[0:n_hidden * (n_input + 1)].reshape((n_hidden, (n_input + 1)))
+w2 = nn_params.x[(n_hidden * (n_input + 1)):].reshape((n_class, (n_hidden + 1)))
+
+# Test the computed parameters
+
+predicted_label = nnPredict(w1, w2, train_data)
+
+# find the accuracy on Training Dataset
+
+print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label == train_label).astype(float))) + '%')
+
+predicted_label = nnPredict(w1, w2, validation_data)
+
+# find the accuracy on Validation Dataset
+
+print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == validation_label).astype(float))) + '%')
+
+predicted_label = nnPredict(w1, w2, test_data)
+
+# find the accuracy on Validation Dataset
+
+print('\n Test set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
+
+parameters = [featureIndices, int(optimal_m), w1, w2, int(optimal_lambda)]
+pickle.dump(parameters, open('params.pickle', 'wb'))
