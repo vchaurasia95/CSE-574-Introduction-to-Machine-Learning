@@ -117,6 +117,26 @@ def blrObjFunction(initialWeights, *args):
     ##################
     # HINT: Do not forget to add the bias term to your input data
 
+    # Step 1: add Bias Term
+    X = np.concatenate((np.full((n_data, 1), 1), train_data), axis=1)
+
+    W = initialWeights.reshape(n_features+1, 1)
+
+    theta = sigmoid(np.dot(X, W))
+
+    #Step 2: calculate error:
+
+    part_a = np.multiply(labeli, np.log(theta))
+
+    part_b = np.multiply(np.subtract(1, labeli), np.log(np.subtract(1, theta)))
+
+    error = np.multiply(-1, np.divide(np.sum(part_a+part_b), n_data))
+
+    # Step 3: calculate error_grad
+
+    error_grad = np.divide(np.sum(np.multiply(np.subtract(theta, labeli), X), axis=0), n_data)
+
+
     return error, error_grad
 
 
@@ -141,6 +161,18 @@ def blrPredict(W, data):
     # YOUR CODE HERE #
     ##################
     # HINT: Do not forget to add the bias term to your input data
+
+    # Add Bias Term
+
+    rows = data.shape[0]
+
+    bias_arr = np.full((rows, 1), 1)
+    X = np.concatenate((bias_arr,data), axis=1)
+
+    probablity = sigmoid(np.dot(X, W))
+
+    label = np.argmax(probablity, axis=1)
+    label = label.reshape((rows, 1))
 
     return label
 
@@ -240,36 +272,36 @@ print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == vali
 predicted_label = blrPredict(W, test_data)
 print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
 
-"""
-Script for Support Vector Machine
-"""
-
-print('\n\n--------------SVM-------------------\n\n')
-##################
-# YOUR CODE HERE #
-##################
-
-
-"""
-Script for Extra Credit Part
-"""
-# FOR EXTRA CREDIT ONLY
-W_b = np.zeros((n_feature + 1, n_class))
-initialWeights_b = np.zeros((n_feature + 1, n_class))
-opts_b = {'maxiter': 100}
-
-args_b = (train_data, Y)
-nn_params = minimize(mlrObjFunction, initialWeights_b, jac=True, args=args_b, method='CG', options=opts_b)
-W_b = nn_params.x.reshape((n_feature + 1, n_class))
-
-# Find the accuracy on Training Dataset
-predicted_label_b = mlrPredict(W_b, train_data)
-print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label_b == train_label).astype(float))) + '%')
-
-# Find the accuracy on Validation Dataset
-predicted_label_b = mlrPredict(W_b, validation_data)
-print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label_b == validation_label).astype(float))) + '%')
-
-# Find the accuracy on Testing Dataset
-predicted_label_b = mlrPredict(W_b, test_data)
-print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label_b == test_label).astype(float))) + '%')
+# """
+# Script for Support Vector Machine
+# """
+#
+# print('\n\n--------------SVM-------------------\n\n')
+# ##################
+# # YOUR CODE HERE #
+# ##################
+#
+#
+# """
+# Script for Extra Credit Part
+# """
+# # FOR EXTRA CREDIT ONLY
+# W_b = np.zeros((n_feature + 1, n_class))
+# initialWeights_b = np.zeros((n_feature + 1, n_class))
+# opts_b = {'maxiter': 100}
+#
+# args_b = (train_data, Y)
+# nn_params = minimize(mlrObjFunction, initialWeights_b, jac=True, args=args_b, method='CG', options=opts_b)
+# W_b = nn_params.x.reshape((n_feature + 1, n_class))
+#
+# # Find the accuracy on Training Dataset
+# predicted_label_b = mlrPredict(W_b, train_data)
+# print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label_b == train_label).astype(float))) + '%')
+#
+# # Find the accuracy on Validation Dataset
+# predicted_label_b = mlrPredict(W_b, validation_data)
+# print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label_b == validation_label).astype(float))) + '%')
+#
+# # Find the accuracy on Testing Dataset
+# predicted_label_b = mlrPredict(W_b, test_data)
+# print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label_b == test_label).astype(float))) + '%')
