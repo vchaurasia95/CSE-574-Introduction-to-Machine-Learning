@@ -196,7 +196,8 @@ def nnObjFunction(params, *args):
     grad_w2 = np.dot(delta.T, sigma_bj_with_biase)
 
     t1 = np.dot(delta,w2)
-    t1 = t1 * (sigma_bj_with_biase*(1.0-sigma_bj_with_biase))
+    prm = (1.0-sigma_bj_with_biase)
+    t1 = t1 * (sigma_bj_with_biase*prm)
 
     grad_w1 = (np.dot(np.transpose(t1), training_data_with_biases))[1:, :]
 
@@ -333,18 +334,16 @@ for lambda_val in lambada_vals:
         print(' || n_hidden=', n_hidden, end=" ")
         print(' || λ=', lambda_val)
 
-results = pnd.DataFrame(np.column_stack([lambdas, hidden, train_acc, validation_acc, test_acc, exec_time]),
-                       columns=['λ', 'm', 'Train_Accuracy', 'Validation_Accuracy', 'Test_Accuracy', 'Training_Time'])
-results = results.sort_values(by=['Test_Accuracy'], ascending=False)
+res = pnd.DataFrame(np.column_stack([lambdas, hidden, train_acc, validation_acc, test_acc, exec_time]), columns=['λ', 'm', 'Train_Accuracy', 'Validation_Accuracy', 'Test_Accuracy', 'Training_Time'])
+res = res.sort_values(by=['Test_Accuracy'], ascending=False)
 
+res.head(10)
 
-results.head(10)
+lambda_optimal = res.iloc[0,0]
+m_optimal = res.iloc[0,1]
 
-optimal_lambda = results.iloc[0,0]
-optimal_m = results.iloc[0,1]
+print("Optimal Lambda :", lambda_optimal)
+print("Optimal hidden units :", m_optimal)
 
-print("Optimal Lambda :", optimal_lambda)
-print("Optimal hidden units :", optimal_m)
-
-parameters = [selected_indicies, int(optimal_m), w1, w2, int(optimal_lambda)]
+parameters = [selected_indicies, int(m_optimal), w1, w2, int(lambda_optimal)]
 pickle.dump(parameters, open('params.pickle', 'wb'))
