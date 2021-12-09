@@ -203,6 +203,25 @@ def mlrObjFunction(params, *args):
     ##################
     # HINT: Do not forget to add the bias term to your input data
 
+    # Step 1: Add bias
+    X = np.concatenate((np.full((n_data, 1), 1), train_data), axis=1)
+
+    W = params.reshape(n_feature + 1, n_class)
+
+    part_a = np.exp(np.dot(X, W))
+
+    part_b_1 = np.sum(part_a, axis=1)
+    part_b_2 = part_b_1.reshape(part_b_1.shape[0], 1)
+
+    theta = np.divide(part_a, part_b_2)
+
+    sum_1 = np.sum(np.multiply(Y, np.log(theta)))
+    error = -1 * np.sum(sum_1)
+
+    error_grad = np.dot(X.T, np.subtract(theta, labeli))
+
+    error_grad = error_grad.ravel()
+
 
     return error, error_grad
 
@@ -223,13 +242,22 @@ def mlrPredict(W, data):
 
     """
     label = np.zeros((data.shape[0], 1))
+    rows = data.shape[0]
 
     ##################
     # YOUR CODE HERE #
     ##################
     # HINT: Do not forget to add the bias term to your input data
 
-    return label
+    X = np.concatenate((np.full((rows, 1), 1), data), axis=1)
+
+    tmp = np.sum(np.exp(np.dot(X, W)), axis=1)
+    tmp = tmp.reshape(tmp.shape[0], 1)
+    theta = np.divide(np.exp(np.dot(X, W)), tmp)
+
+    label = np.argmax(theta, axis=1)
+
+    return label.reshape(rows, 1)
 
 
 """
