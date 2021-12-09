@@ -215,7 +215,7 @@ def mlrObjFunction(params, *args):
 
     theta = np.divide(part_a, part_b_2)
 
-    sum_1 = np.sum(np.multiply(Y, np.log(theta)))
+    sum_1 = np.sum(np.multiply(labeli, np.log(theta)))
     error = -1 * np.sum(sum_1)
 
     error_grad = np.dot(X.T, np.subtract(theta, labeli))
