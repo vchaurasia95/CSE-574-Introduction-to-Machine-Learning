@@ -307,25 +307,28 @@ print('\n--------------SVM-------------------\n')
 ##################
 # YOUR CODE HERE #
 ##################
+index = np.random.randint(50000, size=10000)
+tr_svm_data = train_data[index, :]
+tr_svm_label = train_label[index, :]
 
 print('-----linear kernel------')
 svm_linear = SVC(kernel='linear')
-svm_linear.fit(train_data, train_label.flatten())
-print('\nTraining set Accuracy:' + str(100 * svm_linear.score(train_data, train_label)))
+svm_linear.fit(tr_svm_data, tr_svm_label.ravel())
+print('\nTraining set Accuracy:' + str(100 * svm_linear.score(tr_svm_data, tr_svm_label)))
 print('\nValidation set Accuracy:' + str(100 * svm_linear.score(validation_data, validation_label)))
 print('\nTesting set Accuracy:' + str(100 * svm_linear.score(test_data, test_label)))
 
 print('\n-----SVM with RBF for gamma = 1------')
 svm_rbf = SVC(kernel='rbf', gamma=1.0)
-svm_rbf.fit(train_data, train_label.flatten())
-print('\nTraining set Accuracy:' + str(100 * svm_rbf.score(train_data, train_label)))
+svm_rbf.fit(tr_svm_data, tr_svm_label.ravel())
+print('\nTraining set Accuracy:' + str(100 * svm_rbf.score(tr_svm_data, tr_svm_label)))
 print('\nValidation set Accuracy:' + str(100 * svm_rbf.score(validation_data, validation_label)))
 print('\nTesting set Accuracy:' + str(100 * svm_rbf.score(test_data, test_label)))
 
 print('\n------SVM with RBF for gamma = 0-------')
 svm_default = SVC(kernel='rbf', gamma='auto')
-svm_default.fit(train_data, train_label.flatten())
-print('\nTraining set Accuracy:' + str(100 * svm_default.score(train_data, train_label)))
+svm_default.fit(tr_svm_data, tr_svm_label.ravel())
+print('\nTraining set Accuracy:' + str(100 * svm_default.score(tr_svm_data, tr_svm_label)))
 print('\nValidation set Accuracy:' + str(100 * svm_default.score(validation_data, validation_label)))
 print('\nTesting set Accuracy:' + str(100 * svm_default.score(test_data, test_label)))
 
@@ -338,8 +341,8 @@ testing_accuracy = np.zeros(11)
 for index in range(11):
     print('\nC: ' + str(c_values[index]))
     svm_c = SVC(C=c_values[index], kernel='rbf')
-    svm_c.fit(train_data, train_label.flatten())
-    training_accuracy[index] = 100 * svm_c.score(train_data, train_label)
+    svm_c.fit(tr_svm_data, tr_svm_label.ravel())
+    training_accuracy[index] = 100 * svm_c.score(tr_svm_data, tr_svm_label)
     print('\nTraining set Accuracy:' + str(training_accuracy[index]))
     validation_accuracy[index] = 100 * svm_c.score(validation_data, validation_label)
     print('\nValidation set Accuracy:' + str(validation_accuracy[index]))
