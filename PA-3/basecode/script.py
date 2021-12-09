@@ -272,36 +272,75 @@ print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label == vali
 predicted_label = blrPredict(W, test_data)
 print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label == test_label).astype(float))) + '%')
 
-# """
-# Script for Support Vector Machine
-# """
-#
-# print('\n\n--------------SVM-------------------\n\n')
-# ##################
-# # YOUR CODE HERE #
-# ##################
-#
-#
-# """
-# Script for Extra Credit Part
-# """
-# # FOR EXTRA CREDIT ONLY
-# W_b = np.zeros((n_feature + 1, n_class))
-# initialWeights_b = np.zeros((n_feature + 1, n_class))
-# opts_b = {'maxiter': 100}
-#
-# args_b = (train_data, Y)
-# nn_params = minimize(mlrObjFunction, initialWeights_b, jac=True, args=args_b, method='CG', options=opts_b)
-# W_b = nn_params.x.reshape((n_feature + 1, n_class))
-#
-# # Find the accuracy on Training Dataset
-# predicted_label_b = mlrPredict(W_b, train_data)
-# print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label_b == train_label).astype(float))) + '%')
-#
-# # Find the accuracy on Validation Dataset
-# predicted_label_b = mlrPredict(W_b, validation_data)
-# print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label_b == validation_label).astype(float))) + '%')
-#
-# # Find the accuracy on Testing Dataset
-# predicted_label_b = mlrPredict(W_b, test_data)
-# print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label_b == test_label).astype(float))) + '%')
+"""
+Script for Support Vector Machine
+"""
+
+print('\n--------------SVM-------------------\n')
+##################
+# YOUR CODE HERE #
+##################
+
+print('-----linear kernel------')
+svm = svm.SVC(kernel='linear')
+svm.fit(train_data, train_label.flatten())
+print('\nTraining set Accuracy:' + str(100 * svm.score(train_data, train_label)))
+print('\nValidation set Accuracy:' + str(100 * svm.score(validation_data, validation_label)))
+print('\nTesting set Accuracy:' + str(100 * svm.score(test_data, test_label)))
+
+
+print('\n-----SVM with RBF for gamma = 1------')
+svm = svm.SVC(kernel='rbf', gamma=1.0)
+svm.fit(train_data, train_label.flatten())
+print('\nTraining set Accuracy:' + str(100 * svm.score(train_data, train_label)))
+print('\nValidation set Accuracy:' + str(100 * svm.score(validation_data, validation_label)))
+print('\nTesting set Accuracy:' + str(100 * svm.score(test_data, test_label)))
+
+print('\n------SVM with RBF for gamma = 0-------')
+svm = svm.SVC(kernel='rbf')
+svm.fit(train_data, train_label.flatten())
+print('\nTraining set Accuracy:' + str(100 * svm.score(train_data, train_label)))
+print('\nValidation set Accuracy:' + str(100 * svm.score(validation_data, validation_label)))
+print('\nTesting set Accuracy:' + str(100 * svm.score(test_data, test_label)))
+
+print('\n------SVM with RBF for different values of C------')
+c_values = [1.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+validation_accuracy = np.zeros(11)
+training_accuracy = np.zeros(11)
+testing_accuracy = np.zeros(11)
+
+for index in range(11):
+    print('\nC: ' + str(c_values[index]))
+    svm = svm.SVC(C=c_values[index], kernel='rbf')
+    svm.fit(train_data, train_label.flatten())
+    training_accuracy[index] = 100 * svm.score(train_data, train_label)
+    print('\nTraining set Accuracy:' + str(training_accuracy[index]))
+    validation_accuracy[index] = 100 * svm.score(validation_data, validation_label)
+    print('\nValidation set Accuracy:' + str(validation_accuracy[index]))
+    testing_accuracy[index] = 100 * svm.score(test_data, test_label)
+    print('\nTesting set Accuracy:' + str(testing_accuracy[index]))
+
+
+"""
+Script for Extra Credit Part
+"""
+# FOR EXTRA CREDIT ONLY
+W_b = np.zeros((n_feature + 1, n_class))
+initialWeights_b = np.zeros((n_feature + 1, n_class))
+opts_b = {'maxiter': 100}
+
+args_b = (train_data, Y)
+nn_params = minimize(mlrObjFunction, initialWeights_b, jac=True, args=args_b, method='CG', options=opts_b)
+W_b = nn_params.x.reshape((n_feature + 1, n_class))
+
+# Find the accuracy on Training Dataset
+predicted_label_b = mlrPredict(W_b, train_data)
+print('\n Training set Accuracy:' + str(100 * np.mean((predicted_label_b == train_label).astype(float))) + '%')
+
+# Find the accuracy on Validation Dataset
+predicted_label_b = mlrPredict(W_b, validation_data)
+print('\n Validation set Accuracy:' + str(100 * np.mean((predicted_label_b == validation_label).astype(float))) + '%')
+
+# Find the accuracy on Testing Dataset
+predicted_label_b = mlrPredict(W_b, test_data)
+print('\n Testing set Accuracy:' + str(100 * np.mean((predicted_label_b == test_label).astype(float))) + '%')
