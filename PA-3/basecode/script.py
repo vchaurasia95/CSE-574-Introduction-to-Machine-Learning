@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.io import loadmat
 from scipy.optimize import minimize
-from sklearn import svm
+from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 
 
@@ -120,22 +120,21 @@ def blrObjFunction(initialWeights, *args):
     # Step 1: add Bias Term
     X = np.concatenate((np.full((n_data, 1), 1), train_data), axis=1)
 
-    W = initialWeights.reshape(n_features+1, 1)
+    W = initialWeights.reshape(n_features + 1, 1)
 
     theta = sigmoid(np.dot(X, W))
 
-    #Step 2: calculate error:
+    # Step 2: calculate error:
 
     part_a = np.multiply(labeli, np.log(theta))
 
     part_b = np.multiply(np.subtract(1, labeli), np.log(np.subtract(1, theta)))
 
-    error = np.multiply(-1, np.divide(np.sum(part_a+part_b), n_data))
+    error = np.multiply(-1, np.divide(np.sum(part_a + part_b), n_data))
 
     # Step 3: calculate error_grad
 
     error_grad = np.divide(np.sum(np.multiply(np.subtract(theta, labeli), X), axis=0), n_data)
-
 
     return error, error_grad
 
@@ -167,7 +166,7 @@ def blrPredict(W, data):
     rows = data.shape[0]
 
     bias_arr = np.full((rows, 1), 1)
-    X = np.concatenate((bias_arr,data), axis=1)
+    X = np.concatenate((bias_arr, data), axis=1)
 
     probablity = sigmoid(np.dot(X, W))
 
@@ -175,6 +174,7 @@ def blrPredict(W, data):
     label = label.reshape((rows, 1))
 
     return label
+
 
 def mlrObjFunction(params, *args):
     """
@@ -221,7 +221,6 @@ def mlrObjFunction(params, *args):
     error_grad = np.dot(X.T, np.subtract(theta, labeli))
 
     error_grad = error_grad.ravel()
-
 
     return error, error_grad
 
@@ -310,26 +309,25 @@ print('\n--------------SVM-------------------\n')
 ##################
 
 print('-----linear kernel------')
-svm = svm.SVC(kernel='linear')
-svm.fit(train_data, train_label.flatten())
-print('\nTraining set Accuracy:' + str(100 * svm.score(train_data, train_label)))
-print('\nValidation set Accuracy:' + str(100 * svm.score(validation_data, validation_label)))
-print('\nTesting set Accuracy:' + str(100 * svm.score(test_data, test_label)))
-
+svm_linear = SVC(kernel='linear')
+svm_linear.fit(train_data, train_label.flatten())
+print('\nTraining set Accuracy:' + str(100 * svm_linear.score(train_data, train_label)))
+print('\nValidation set Accuracy:' + str(100 * svm_linear.score(validation_data, validation_label)))
+print('\nTesting set Accuracy:' + str(100 * svm_linear.score(test_data, test_label)))
 
 print('\n-----SVM with RBF for gamma = 1------')
-svm = svm.SVC(kernel='rbf', gamma=1.0)
-svm.fit(train_data, train_label.flatten())
-print('\nTraining set Accuracy:' + str(100 * svm.score(train_data, train_label)))
-print('\nValidation set Accuracy:' + str(100 * svm.score(validation_data, validation_label)))
-print('\nTesting set Accuracy:' + str(100 * svm.score(test_data, test_label)))
+svm_rbf = SVC(kernel='rbf', gamma=1.0)
+svm_rbf.fit(train_data, train_label.flatten())
+print('\nTraining set Accuracy:' + str(100 * svm_rbf.score(train_data, train_label)))
+print('\nValidation set Accuracy:' + str(100 * svm_rbf.score(validation_data, validation_label)))
+print('\nTesting set Accuracy:' + str(100 * svm_rbf.score(test_data, test_label)))
 
 print('\n------SVM with RBF for gamma = 0-------')
-svm = svm.SVC(kernel='rbf')
-svm.fit(train_data, train_label.flatten())
-print('\nTraining set Accuracy:' + str(100 * svm.score(train_data, train_label)))
-print('\nValidation set Accuracy:' + str(100 * svm.score(validation_data, validation_label)))
-print('\nTesting set Accuracy:' + str(100 * svm.score(test_data, test_label)))
+svm_default = SVC(kernel='rbf', gamma='auto')
+svm_default.fit(train_data, train_label.flatten())
+print('\nTraining set Accuracy:' + str(100 * svm_default.score(train_data, train_label)))
+print('\nValidation set Accuracy:' + str(100 * svm_default.score(validation_data, validation_label)))
+print('\nTesting set Accuracy:' + str(100 * svm_default.score(test_data, test_label)))
 
 print('\n------SVM with RBF for different values of C------')
 c_values = [1.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
@@ -339,15 +337,22 @@ testing_accuracy = np.zeros(11)
 
 for index in range(11):
     print('\nC: ' + str(c_values[index]))
-    svm = svm.SVC(C=c_values[index], kernel='rbf')
-    svm.fit(train_data, train_label.flatten())
-    training_accuracy[index] = 100 * svm.score(train_data, train_label)
+    svm_c = SVC(C=c_values[index], kernel='rbf')
+    svm_c.fit(train_data, train_label.flatten())
+    training_accuracy[index] = 100 * svm_c.score(train_data, train_label)
     print('\nTraining set Accuracy:' + str(training_accuracy[index]))
-    validation_accuracy[index] = 100 * svm.score(validation_data, validation_label)
+    validation_accuracy[index] = 100 * svm_c.score(validation_data, validation_label)
     print('\nValidation set Accuracy:' + str(validation_accuracy[index]))
-    testing_accuracy[index] = 100 * svm.score(test_data, test_label)
+    testing_accuracy[index] = 100 * svm_c.score(test_data, test_label)
     print('\nTesting set Accuracy:' + str(testing_accuracy[index]))
 
+svm_full = SVC(kernel='rbf', gamma='auto', C=70)
+svm_full.fit(train_data, train_label.ravel())
+
+print('----------\nRBF with FULL training set with best C :\n------------')
+print('\nTraining set Accuracy:' + str(100 * svm_full.score(train_data, train_label)) + '%')
+print('\nValidation set Accuracy:' + str(100 * svm_full.score(validation_data, validation_label)) + '%')
+print('\nTesting set Accuracy:' + str(100 * svm_full.score(test_data, test_label)) + '%')
 
 """
 Script for Extra Credit Part
